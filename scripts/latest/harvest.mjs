@@ -128,9 +128,16 @@ RELEVANCE RUBRIC (score each candidate, keep only the strongest):
    UK bodies govern our practice (NHSCSP for screening, BHIVA for HIV, FSRH for contraception,
    BGCS for gynae-oncology, BSH for haematology). US society guidance rarely changes UK practice.
 2. Would a UK O&G trainee change or check their practice, or want to sound current, because of this?
-3. Actionability or currency. Practice-changing guidance, safety notices, and national maternity
-   news rank highest. Include NHSE / RCOG news when a trainee would want to sound current or it
-   may affect local practice (e.g. national reviews, rollout of a safety intervention). New tests /
+3. Actionability or currency. Practice-changing guidance and national maternity news rank highest.
+   A safety notice joins them only when an O&G trainee would do something differently at the bedside:
+   a drug they prescribe or administer, or a step in a procedure they perform or supervise. Alerts
+   about medicines they do not initiate, recalls handled by nursing or procurement, and
+   contraindications that turn on a diagnosis they almost never meet do not belong here, however
+   sound the alert. Never manufacture an O&G hook:
+   if the source itself says nothing about pregnancy, birth or gynaecology and the trainee would not
+   act differently, drop it. A labelling or packaging change is not a practice change.
+   Include NHSE / RCOG news when a trainee would want to sound current or it may affect local
+   practice (e.g. national reviews, rollout of a safety intervention). New tests /
    devices / treatments on the horizon (kind "research") are welcome even before they change UK
    practice, if a trainee would want to know about them. Reject basic science, animal studies,
    protocol papers, recruitment-methods papers, and generic health-policy noise with no O&G hook.
