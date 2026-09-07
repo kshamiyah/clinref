@@ -1,6 +1,16 @@
 {
-  "updated": "2026-09-03",
+  "updated": "2026-09-07",
   "items": [
+    {
+      "id": "2026-09-metr-phase-two",
+      "date": "2026-09-03",
+      "kind": "report",
+      "source": "RCOG",
+      "weight": "aware",
+      "title": "O&G training review enters phase two with RCOG involvement",
+      "why": "The training review is examining flexibility, progression bottlenecks, service-training balance and team structures. Follow its recommendations through your training programme because they may affect rotations, curriculum delivery and career progression.",
+      "url": "https://www.rcog.org.uk/news/blog-advocating-for-our-future-workforce-in-the-medical-education-and-training-review/"
+    },
     {
       "id": "2026-09-gtg37a-vte-interim",
       "date": "2026-09-03",
