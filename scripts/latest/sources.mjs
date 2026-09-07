@@ -62,6 +62,12 @@ function htmlToText(html, cap = 6000) {
 // --- Tier 2: journal shortlist via PubMed E-utilities (entry-date window) ---
 // Entry date (edat) tracks when PubMed indexed the paper, not the print-issue
 // date, so a short window actually catches things when they appear online.
+//
+// Publication types are assigned during MeSH indexing, weeks to months after a
+// record first appears, so REQUIRING "Randomized Controlled Trial" and friends
+// alongside an edat window is close to self-contradictory: it returned nothing
+// at any window up to 21 days. Exclude the types we never want instead, which
+// lets a freshly indexed paper through while its tags are still missing.
 export async function harvestPubMed({ lookbackDays = 3, apiKey = "" } = {}) {
   const key = apiKey ? `&api_key=${apiKey}` : "";
   const now = new Date();
@@ -75,13 +81,11 @@ export async function harvestPubMed({ lookbackDays = 3, apiKey = "" } = {}) {
     "pregnancy", "obstetric", "postpartum", "labour", "labor", "gynaecolog",
     "gynecolog", "contracept", "menopause", "endometrio", "fetal", "maternal",
   ].map(t => `${t}[Title/Abstract]`).join(" OR ");
-  const typeClause = [
-    "Randomized Controlled Trial[Publication Type]",
-    "Meta-Analysis[Publication Type]",
-    "Guideline[Publication Type]",
-    "Practice Guideline[Publication Type]",
-  ].join(" OR ");
-  const term = encodeURIComponent(`(${journalClause}) AND (${topicClause}) AND (${typeClause})`);
+  const excludeClause = [
+    "Editorial", "Comment", "Letter", "News", "Case Reports",
+    "Published Erratum", "Biography", "Historical Article",
+  ].map(t => `${t}[Publication Type]`).join(" OR ");
+  const term = encodeURIComponent(`(${journalClause}) AND (${topicClause}) NOT (${excludeClause})`);
   const esearch = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&datetype=edat&mindate=${ymd(from)}&maxdate=${ymd(now)}&retmax=40&term=${term}&tool=${PUBMED_TOOL}&email=${PUBMED_EMAIL}${key}`;
 
   const search = await getJson(esearch);

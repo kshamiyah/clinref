@@ -16,7 +16,11 @@ next online visit.
 
 1. **Trusted sources in** (`sources.mjs`): a locked PubMed query over a journal
    shortlist filtered on **entry date** (so a short window catches papers when
-   they appear online, not months later at print), the keyless gov.uk search API
+   they appear online, not months later at print). It excludes editorials,
+   comments and case reports rather than requiring a publication type: those
+   tags arrive with MeSH indexing weeks later, so requiring them alongside an
+   entry-date window returned nothing. Window is `LATEST_LOOKBACK_DAYS`
+   (default 14, covering the weekly cron with slack for a missed run). the keyless gov.uk search API
    for MHRA safety notices and **NHS England maternity** publications/news, and
    the NICE / RCOG / MBRRACE listing pages. gov.uk has no date filter of its own, so
    candidates older than `LATEST_GOVUK_MAX_AGE_DAYS` (default 60) are dropped before

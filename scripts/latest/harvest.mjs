@@ -37,7 +37,7 @@ const FLOWCHARTS_PATH = resolve(REPO, "apps/pocket-og/src/data/flowcharts.js");
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 const MAX_ITEMS = Number(process.env.LATEST_MAX_ITEMS || 10);
 const RESEARCH_SUBCAP = Number(process.env.LATEST_RESEARCH_SUBCAP || 3);
-const LOOKBACK_DAYS = Number(process.env.LATEST_LOOKBACK_DAYS || 3);
+const LOOKBACK_DAYS = Number(process.env.LATEST_LOOKBACK_DAYS || 14);
 // gov.uk candidates older than this are dropped before triage. Generous enough
 // that one missed or failed run does not lose a story, tight enough that
 // "Latest" means recent: the weekly cron plus slack for a skipped cycle.

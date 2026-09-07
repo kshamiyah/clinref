@@ -14,9 +14,9 @@ on:
   workflow_dispatch:
     inputs:
       lookback_days:
-        description: "How many days back to harvest (default 3)"
+        description: "How many days back to harvest (default 14)"
         required: false
-        default: "3"
+        default: "14"
 
 permissions:
   contents: write
@@ -47,7 +47,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.openai_api_key }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
           PUBMED_API_KEY: ${{ secrets.PUBMED_API_KEY }}
-          LATEST_LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '3' }}
+          LATEST_LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '14' }}
         run: node harvest.mjs
 
       - name: Open pull request
