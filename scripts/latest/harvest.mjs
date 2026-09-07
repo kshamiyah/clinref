@@ -242,6 +242,12 @@ const TITLE_NOISE = new Set([
   "warning", "reveal", "reveals", "report", "reports", "say", "says", "show", "shows",
 ]);
 
+// Crude suffix stripping so "waits" and "waiting" collide. Measured on the
+// current feed it costs nothing: the worst unrelated pair scores 0.43 either way.
+function stem(word) {
+  return word.length > 3 ? word.replace(/ings?$/, "").replace(/ed$/, "").replace(/s$/, "") : word;
+}
+
 function titleTokens(title = "") {
   return new Set(
     title.toLowerCase()
@@ -249,6 +255,7 @@ function titleTokens(title = "") {
       .replace(/[^a-z0-9\s]/g, " ")
       .split(/\s+/)
       .filter(w => w && w.length > 1 && !TITLE_NOISE.has(w))
+      .map(stem)
   );
 }
 
@@ -262,7 +269,16 @@ function titleOverlap(a, b) {
   return hits / Math.min(A.size, B.size);
 }
 
+// Recurring series worth seeing every time they publish. Title dedupe is skipped
+// for these; id and URL dedupe still applies, so a literal re-proposal of the same
+// article is still caught. Add a pattern here when a series carries genuinely new
+// figures each release (an annual audit), rather than restating a running story.
+const TITLE_DEDUPE_EXEMPT = [
+  /national maternity and perinatal audit|\bnmpa\b|birth trends/i,
+];
+
 function duplicateOfSeenTitle(title, seenTitles) {
+  if (TITLE_DEDUPE_EXEMPT.some(re => re.test(title))) return null;
   for (const prev of seenTitles) {
     if (titleOverlap(title, prev) >= TITLE_DUP_THRESHOLD) return prev;
   }
