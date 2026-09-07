@@ -30,6 +30,17 @@ async function getText(url) {
 
 export { htmlToText, getText };
 
+// gov.uk search has no date filter, so the 15 most recent drug safety updates
+// reach back months (Drug Safety Update is a monthly bulletin). Without this,
+// stale alerts sit in the candidate pool every run and can surface at any time.
+function withinMaxAge(timestamp, maxAgeDays) {
+  if (!maxAgeDays) return true;
+  if (!timestamp) return false;
+  const t = Date.parse(timestamp);
+  if (Number.isNaN(t)) return false;
+  return (Date.now() - t) <= maxAgeDays * 86400000;
+}
+
 function ymd(d) {
   return `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
 }
@@ -97,14 +108,16 @@ export async function harvestPubMed({ lookbackDays = 3, apiKey = "" } = {}) {
 }
 
 // --- Tier 1: MHRA safety notices via the keyless gov.uk search API ---
-export async function harvestGovUk() {
+export async function harvestGovUk({ maxAgeDays = 0 } = {}) {
   const types = ["drug_safety_update", "medical_safety_alert", "drug_device_alert"];
   const out = [];
+  let stale = 0;
   for (const t of types) {
     try {
       const url = `https://www.gov.uk/api/search.json?filter_content_store_document_type=${t}&order=-public_timestamp&count=15&fields=title,link,public_timestamp,description`;
       const data = await getJson(url);
       for (const r of data?.results ?? []) {
+        if (!withinMaxAge(r.public_timestamp, maxAgeDays)) { stale++; continue; }
         out.push({
           source: "MHRA",
           kind_hint: "safety",
@@ -118,6 +131,7 @@ export async function harvestGovUk() {
       console.warn(`gov.uk ${t}: ${e.message}`);
     }
   }
+  if (stale) console.log(`gov.uk MHRA: skipped ${stale} item(s) older than ${maxAgeDays} days.`);
   return out;
 }
 
@@ -134,14 +148,19 @@ function kindHintForGovUk(url, title = "") {
 }
 
 // --- NHS England maternity publications & news via gov.uk search API ---
-export async function harvestNhsEnglandMaternity({ count = 15 } = {}) {
+export async function harvestNhsEnglandMaternity({ count = 15, maxAgeDays = 0 } = {}) {
   try {
     const url =
       "https://www.gov.uk/api/search.json?" +
       `filter_organisations=nhs-england&q=maternity&order=-public_timestamp&count=${count}` +
       "&fields=title,link,public_timestamp,description";
     const data = await getJson(url);
-    return (data?.results ?? []).map(r => ({
+    const results = data?.results ?? [];
+    const fresh = results.filter(r => withinMaxAge(r.public_timestamp, maxAgeDays));
+    if (fresh.length < results.length) {
+      console.log(`gov.uk NHSE maternity: skipped ${results.length - fresh.length} item(s) older than ${maxAgeDays} days.`);
+    }
+    return fresh.map(r => ({
       source: "REPORT",
       kind_hint: kindHintForGovUk(govUkLink(r.link ?? ""), r.title ?? ""),
       title: r.title ?? "",

@@ -38,6 +38,10 @@ const MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 const MAX_ITEMS = Number(process.env.LATEST_MAX_ITEMS || 10);
 const RESEARCH_SUBCAP = Number(process.env.LATEST_RESEARCH_SUBCAP || 3);
 const LOOKBACK_DAYS = Number(process.env.LATEST_LOOKBACK_DAYS || 3);
+// gov.uk candidates older than this are dropped before triage. Generous enough
+// that one missed or failed run does not lose a story, tight enough that
+// "Latest" means recent: the weekly cron plus slack for a skipped cycle.
+const GOVUK_MAX_AGE_DAYS = Number(process.env.LATEST_GOVUK_MAX_AGE_DAYS || 60);
 const DEEP_MAX = Number(process.env.LATEST_DEEP_MAX || 24);
 const RCOG_DEEP_RESERVE = Number(process.env.LATEST_RCOG_DEEP_RESERVE || 8);
 const NHSE_MATERNITY_COUNT = Number(process.env.LATEST_NHSE_MATERNITY_COUNT || 15);
@@ -413,8 +417,8 @@ async function main() {
 
   const [pubmed, govuk, nhseMaternity, pages] = await Promise.all([
     harvestPubMed({ lookbackDays: LOOKBACK_DAYS, apiKey: process.env.PUBMED_API_KEY || "" }).catch(e => (console.warn(`pubmed: ${e.message}`), [])),
-    harvestGovUk().catch(e => (console.warn(`govuk: ${e.message}`), [])),
-    harvestNhsEnglandMaternity({ count: NHSE_MATERNITY_COUNT }).catch(e => (console.warn(`nhse maternity: ${e.message}`), [])),
+    harvestGovUk({ maxAgeDays: GOVUK_MAX_AGE_DAYS }).catch(e => (console.warn(`govuk: ${e.message}`), [])),
+    harvestNhsEnglandMaternity({ count: NHSE_MATERNITY_COUNT, maxAgeDays: GOVUK_MAX_AGE_DAYS }).catch(e => (console.warn(`nhse maternity: ${e.message}`), [])),
     harvestPages().catch(e => (console.warn(`pages: ${e.message}`), [])),
   ]);
 

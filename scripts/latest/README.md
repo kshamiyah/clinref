@@ -18,7 +18,10 @@ next online visit.
    shortlist filtered on **entry date** (so a short window catches papers when
    they appear online, not months later at print), the keyless gov.uk search API
    for MHRA safety notices and **NHS England maternity** publications/news, and
-   the NICE / RCOG / MBRRACE listing pages.
+   the NICE / RCOG / MBRRACE listing pages. gov.uk has no date filter of its own, so
+   candidates older than `LATEST_GOVUK_MAX_AGE_DAYS` (default 60) are dropped before
+   triage: without it the monthly Drug Safety Update bulletin leaves months of stale
+   alerts sitting in the pool every run.
 2. **Deep excerpts**: links from those listings (plus NICE `Update-information`
    pages when we only have an overview URL) are fetched so the model can see the
    actual delta, not just that an update exists. Up to eight deep-fetch slots are
